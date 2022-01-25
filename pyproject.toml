@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "stoplight"
+version = "0.1.0"
+description = ""
+authors = ["Maria Kim Heinert <yeeunmariakim@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.27.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pytest-mock = "^3.6.1"
+pytest-cov = "^3.0.0"
+black = {version = "^21.12b0", allow-prereleases = true}
+taskipy = "^1.9.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+test = "pytest --cov-report term-missing --cov-fail-under=70  --cov-branch --cov=stoplight tests/"
+run = "python stoplight/main.py"
