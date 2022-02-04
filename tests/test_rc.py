@@ -1,0 +1,28 @@
+import toml
+
+from stoplight import rc
+
+
+def test_load_opens_stoplightrc(mocker):
+    mock_open = mocker.mock_open(read_data=toml.dumps({}))
+    mocker.patch('builtins.open', mock_open)
+    rc.load()
+    mock_open.assert_called_once_with('.stoplightrc')
+
+
+def test_get_returns_none(mocker):
+    mock_open = mocker.mock_open(read_data=toml.dumps({}))
+    mocker.patch('builtins.open', mock_open)
+    rc.load()
+    assert rc.get('token') is None
+
+
+def test_get_returns_value(mocker):
+    mock_open = mocker.mock_open(read_data=toml.dumps({
+        'token': 'test'
+    }))
+    mocker.patch('builtins.open', mock_open)
+    rc.load()
+    assert rc.get('token') == 'test'
+
+
