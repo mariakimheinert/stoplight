@@ -1,8 +1,9 @@
 import toml
-from typing import Dict
 
 rc = None
-def load() -> Dict:
+
+
+def load():
     '''
     Load configuration file as TOML.
     '''
@@ -11,8 +12,10 @@ def load() -> Dict:
     rc = toml.loads(open(RC_FILENAME).read())
 
 
-def get(key: str) -> str:
+def get(key: str) -> str | None:
     '''
     Get value of key and return None if key does not exist.
     '''
+    if rc is None:
+        return None
     return rc.get(key)
