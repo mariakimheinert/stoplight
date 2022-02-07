@@ -105,14 +105,16 @@ def run_status(token: str = None, org: str = None, assignment_title: str = None,
         else:
             raise ValueError(
                 'Missing token, org, or assignment title in run_status()')
-    table = Table(title=repos[0].assignment_title)
-    table.add_column('Repo')
-    table.add_column('User')
-    table.add_column('Permission')
-    with typer.progressbar(repos, label="Checking Status") as progress:
-        for repo in progress:
-            table.add_row(repo.name, repo.student(), repo.student_permission())
-    Console().print(table)
+    if repos:
+        table = Table(title=repos[0].assignment_title)
+        table.add_column('Repo')
+        table.add_column('User')
+        table.add_column('Permission')
+        with typer.progressbar(repos, label="Checking Status") as progress:
+            for repo in progress:
+                table.add_row(repo.name, repo.student(),
+                              repo.student_permission())
+        Console().print(table)
 
 
 def fill_options(token: str, org: str, assignment_title: str) -> tuple[str, str, str]:
