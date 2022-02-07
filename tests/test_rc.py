@@ -1,21 +1,32 @@
 from importlib import reload
 import toml
 import pytest
+import os
 
 from stoplight import rc
 
 
-@pytest.fixture(autouse=True)
-def setup(mocker):
-    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
-    yield
-
-
 def test_load_opens_stoplightrc(mocker):
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     mock_open = mocker.mock_open(read_data=toml.dumps({}))
     mocker.patch('builtins.open', mock_open)
     rc.load()
     mock_open.assert_called_once_with('.stoplightrc', encoding='utf-8')
+
+
+def test_rc_filename_local_stoplightrc_exists_returns_local_stoplightrc(mocker):
+    mocker.patch('os.path.exists', return_value=True)
+    assert rc.rc_filename() == '.stoplightrc'
+
+
+def test_rc_filename_local_stoplightrc_not_exists_returns_home_stoplightrc(mocker):
+    mocker.patch('os.path.exists', side_effect=[False, True])
+    assert rc.rc_filename() == f'{os.path.expanduser("~")}/.stoplightrc'
+
+
+def test_rc_filename_no_stoplightrc_returns_none(mocker):
+    mocker.patch('os.path.exists', side_effect=[False, False])
+    assert rc.rc_filename() == None
 
 
 def test_get_load_not_called_returns_none(mocker):
@@ -26,6 +37,7 @@ def test_get_load_not_called_returns_none(mocker):
 
 
 def test_get_empty_rc_returns_none(mocker):
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     mock_open = mocker.mock_open(read_data=toml.dumps({}))
     mocker.patch('builtins.open', mock_open)
     rc.load()
@@ -33,6 +45,7 @@ def test_get_empty_rc_returns_none(mocker):
 
 
 def test_get_returns_value(mocker):
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     mock_open = mocker.mock_open(read_data=toml.dumps({
         'token': 'test'
     }))
