@@ -1,5 +1,6 @@
 from __future__ import annotations  # Enable type hinting
 import requests
+import json
 
 
 class AssignmentRepo:
@@ -39,13 +40,21 @@ class AssignmentRepo:
 
     def disable_student_push(self) -> None:
         """
-        Take away students's push access to repository by removing them as a collaborator and adding them as a collaborator with pull permission.
+        Update student's permission to pull.
         """
+        r = requests.put(
+            f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}',
+            headers=self.header,
+            data=json.dumps({'permission': 'pull'}))
 
     def enable_student_push(self) -> None:
         """
-        Give user push access to repository by adding them as a collaborator with push permission.
+        Update student's permission to push.
         """
+        requests.put(
+            f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}',
+            headers=self.header,
+            data=json.dumps({'permission': 'push'}))
 
     @staticmethod
     def header(token: str) -> dict[str, str]:
