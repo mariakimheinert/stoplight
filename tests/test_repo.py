@@ -142,7 +142,7 @@ def test_get_all_ignores_repo_that_endswith_solution():
 
 
 @responses.activate
-def test_get_assignment_repos_returns_names():
+def test_get_all_returns_names():
     responses.add(
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/search/repositories',
@@ -158,6 +158,20 @@ def test_get_assignment_repos_returns_names():
         assignment_title='testassignment')
     assert 'testassignment-testuser1' in map(lambda repo: repo.name, repos)
     assert 'testassignment-testuser2' in map(lambda repo: repo.name, repos)
+
+
+@responses.activate
+def test_get_all_status_422_returns_empty_list():
+    responses.add(
+        method=responses.GET,
+        url=f'{AssignmentRepo.API_URL}/search/repositories',
+        match=[matchers.query_param_matcher(
+            {'q': '"testassignment-" org:testorg'})],
+        status=422)
+    repos = AssignmentRepo.get_all(
+        token='test', org='testorg',
+        assignment_title='testassignment')
+    assert repos == []
 
 
 @responses.activate

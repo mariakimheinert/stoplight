@@ -92,14 +92,15 @@ class AssignmentRepo:
             params={'q': f'{assignment_q} org:{org}'}
         )
         repos = []
-        for repo in response.json()['items']:
-            name = repo['name']
-            if not (name == assignment_title or
-                    name.endswith('starter') or
-                    name.endswith('solution')):
-                repos.append(AssignmentRepo(
-                    token=token,
-                    org=org,
-                    name=name,
-                    assignment_title=assignment_title))
+        if response.status_code == 200:
+            for repo in response.json()['items']:
+                name = repo['name']
+                if not (name == assignment_title or
+                        name.endswith('starter') or
+                        name.endswith('solution')):
+                    repos.append(AssignmentRepo(
+                        token=token,
+                        org=org,
+                        name=name,
+                        assignment_title=assignment_title))
         return repos
