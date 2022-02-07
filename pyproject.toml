@@ -17,6 +17,8 @@ requests = "^2.27.1"
 toml = "^0.10.2"
 typer = {extras = ["all"], version = "^0.4.0"}
 rich = "^11.1.0"
+types-toml = "^0.10.3"
+types-requests = "^2.27.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

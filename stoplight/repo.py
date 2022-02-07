@@ -13,7 +13,6 @@ class AssignmentRepo:
         self.name = name
         self.assignment_title = assignment_title
         self.token = token
-        self.header = AssignmentRepo.header(token)
 
     def full_name(self) -> str:
         """
@@ -33,7 +32,7 @@ class AssignmentRepo:
         """
         r = requests.get(
             f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}/permission',
-            headers=self.header)
+            headers=AssignmentRepo.header(self.token))
         if r.status_code == 404:
             return None
         return r.json()['permission']
@@ -44,7 +43,7 @@ class AssignmentRepo:
         """
         r = requests.put(
             f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}',
-            headers=self.header,
+            headers=AssignmentRepo.header(self.token),
             data=json.dumps({'permission': 'pull'}))
 
     def enable_student_push(self) -> None:
@@ -53,7 +52,7 @@ class AssignmentRepo:
         """
         requests.put(
             f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}',
-            headers=self.header,
+            headers=AssignmentRepo.header(self.token),
             data=json.dumps({'permission': 'push'}))
 
     @staticmethod

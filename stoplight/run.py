@@ -66,10 +66,10 @@ def run_green(token: str, org: str, assignment_title: str, all: bool, students: 
     """
     Enable push access to assignment repositories.
     """
+    repos = []
     if all:
         repos = AssignmentRepo.get_all(token, org, assignment_title)
-    else:
-        repos = []
+    elif students:
         for student in students:
             repo = AssignmentRepo.get(token, org, assignment_title, student)
             if repo is None:
@@ -80,7 +80,7 @@ def run_green(token: str, org: str, assignment_title: str, all: bool, students: 
     if repos:
         with typer.progressbar(repos, label="Updating Permissions") as progress:
             for repo in progress:
-                repo.enable_student_push()
+                repo.enable_student_push()  # type: ignore
         run_status(repos=repos)
 
 
