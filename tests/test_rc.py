@@ -1,13 +1,19 @@
 from importlib import reload
 import toml
+import pytest
 
 from stoplight import rc
+
+
+@pytest.fixture(autouse=True)
+def setup(mocker):
+    mocker.patch('os.path.exists', return_value=True)
+    yield
 
 
 def test_load_opens_stoplightrc(mocker):
     mock_open = mocker.mock_open(read_data=toml.dumps({}))
     mocker.patch('builtins.open', mock_open)
-    mocker.patch('os.path.exists', return_value=True)
     rc.load()
     mock_open.assert_called_once_with('.stoplightrc', encoding='utf-8')
 
