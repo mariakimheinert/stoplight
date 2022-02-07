@@ -1,6 +1,6 @@
 from __future__ import annotations  # Enable type hinting
-import requests
 import json
+import requests
 
 
 class AssignmentRepo:
@@ -30,18 +30,18 @@ class AssignmentRepo:
         """
         Get repository permission for student. Return None if student is not collaborator.
         """
-        r = requests.get(
+        response = requests.get(
             f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}/permission',
             headers=AssignmentRepo.header(self.token))
-        if r.status_code == 404:
+        if response.status_code == 404:
             return None
-        return r.json()['permission']
+        return response.json()['permission']
 
     def disable_student_push(self) -> None:
         """
         Update student's permission to pull.
         """
-        r = requests.put(
+        requests.put(
             f'{AssignmentRepo.API_URL}/repos/{self.org}/{self.name}/collaborators/{self.student()}',
             headers=AssignmentRepo.header(self.token),
             data=json.dumps({'permission': 'pull'}))
@@ -66,9 +66,9 @@ class AssignmentRepo:
         Return assignment repository, if found. If not found, return None.
         """
         repo_name = f'{assignment_title}-{student}'
-        r = requests.get(
+        response = requests.get(
             f'{AssignmentRepo.API_URL}/repos/{org}/{repo_name}', headers=AssignmentRepo.header(token))
-        if r.status_code == 200:
+        if response.status_code == 200:
             return AssignmentRepo(
                 token=token,
                 org=org,
@@ -86,13 +86,13 @@ class AssignmentRepo:
         # Hyphen to exclude other assignments that start with assignment
         # E.g. Assignment title 'progress-update-1' will not match 'progress-update-10'
         assignment_q = f'"{assignment_title}-"'
-        r = requests.get(
+        response = requests.get(
             f'{AssignmentRepo.API_URL}/search/repositories',
             headers=AssignmentRepo.header(token),
             params={'q': f'{assignment_q} org:{org}'}
         )
         repos = []
-        for repo in r.json()['items']:
+        for repo in response.json()['items']:
             name = repo['name']
             if not (name == assignment_title or
                     name.endswith('starter') or

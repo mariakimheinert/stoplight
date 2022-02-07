@@ -1,8 +1,7 @@
-import json
+from typing import Optional
 import typer
 from rich.console import Console
 from rich.table import Table
-from typing import Optional
 
 from stoplight import rc
 from stoplight.repo import AssignmentRepo
@@ -15,7 +14,8 @@ TOKEN_OPTION = typer.Option(None, TOKEN_OPTION_NAME,
                             help='GitHub personal access token')
 ORG_OPTION_NAME = '--org'
 ORG_OPTION = typer.Option(
-    None, ORG_OPTION_NAME, help='Name of GitHub organization that contains GitHub Classroom assignment repositories')
+    None, ORG_OPTION_NAME,
+    help='Name of GitHub organization that contains GitHub Classroom assignment repositories')
 ASSIGNMENT_TITLE_OPTION_NAME = '--assignment-title'
 ASSIGNMENT_TITLE_OPTION = typer.Option(
     None, ASSIGNMENT_TITLE_OPTION_NAME, help='Title of GitHub Classroom assignment')
@@ -47,7 +47,7 @@ def run_red(token: str, org: str, assignment_title: str):
 def green(token: str = TOKEN_OPTION,
           org: str = ORG_OPTION,
           assignment_title: str = ASSIGNMENT_TITLE_OPTION,
-          all: bool = typer.Option(
+          all_students: bool = typer.Option(
               False, '--all', help='Enable push access to all assignment repositories.'),
           students: Optional[list[str]] = typer.Argument(None,
                                                          help='Usernames of students to enable access for')) -> None:
@@ -55,19 +55,19 @@ def green(token: str = TOKEN_OPTION,
     Enable push access to assignment repositories.
     """
     token, org, assignment_title = fill_options(token, org, assignment_title)
-    if not all and not students:
+    if not all_students and not students:
         typer.echo(
-            f'Must specify --all or at least one student', err=True)
+            'Must specify --all or at least one student', err=True)
         raise typer.Exit(code=1)
-    run_green(token, org, assignment_title, all, students)
+    run_green(token, org, assignment_title, all_students, students)
 
 
-def run_green(token: str, org: str, assignment_title: str, all: bool, students: list[str] = None):
+def run_green(token: str, org: str, assignment_title: str, all_students: bool, students: list[str] = None):
     """
     Enable push access to assignment repositories.
     """
     repos = []
-    if all:
+    if all_students:
         repos = AssignmentRepo.get_all(token, org, assignment_title)
     elif students:
         for student in students:

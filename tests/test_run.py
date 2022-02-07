@@ -9,7 +9,7 @@ def test_green_all_true_calls_get_all(mocker):
     run_green(token='test',
               org='testorg',
               assignment_title='testassignment',
-              all=True,
+              all_students=True,
               students=[])
     AssignmentRepo.get_all.assert_called()
 
@@ -19,7 +19,7 @@ def test_green_all_false_calls_get(mocker):
     run_green(token='test',
               org='testorg',
               assignment_title='testassignment',
-              all=False,
+              all_students=False,
               students=['testuser'])
     AssignmentRepo.get.assert_called()
 

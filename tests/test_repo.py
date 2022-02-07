@@ -4,23 +4,23 @@ from responses import matchers
 
 from stoplight.repo import AssignmentRepo
 
-repo = None
+REPO = None
 
 
 @pytest.fixture(autouse=True)
 def setup():
-    global repo
-    repo = AssignmentRepo(token='test', org='testorg',
+    global REPO
+    REPO = AssignmentRepo(token='test', org='testorg',
                           name='testassignment-testuser', assignment_title='testassignment')
     yield
 
 
 def test_full_name_returns_org_and_name():
-    assert repo.full_name() == 'testorg/testassignment-testuser'
+    assert REPO.full_name() == 'testorg/testassignment-testuser'
 
 
 def test_student_returns_student_username():
-    assert repo.student() == 'testuser'
+    assert REPO.student() == 'testuser'
 
 
 def test_student_returns_username_that_contains_hyphen():
@@ -35,11 +35,11 @@ def test_get_status_200_returns_assignmentrepo():
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser',
         status=200)
-    assert type(repo.get(
+    assert isinstance(REPO.get(
         token='test',
         org='testorg',
         assignment_title='testassignment',
-        student='testuser')) == AssignmentRepo
+        student='testuser'), AssignmentRepo)
 
 
 @responses.activate
@@ -48,11 +48,11 @@ def test_get_status_301_returns_none():
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser',
         status=301)
-    assert repo.get(
+    assert REPO.get(
         token='test',
         org='testorg',
         assignment_title='testassignment',
-        student='testuser') == None
+        student='testuser') is None
 
 
 @responses.activate
@@ -61,11 +61,11 @@ def test_get_status_403_returns_none():
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser',
         status=403)
-    assert repo.get(
+    assert REPO.get(
         token='test',
         org='testorg',
         assignment_title='testassignment',
-        student='testuser') == None
+        student='testuser') is None
 
 
 @responses.activate
@@ -74,11 +74,11 @@ def test_get_status_404_returns_none():
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser',
         status=404)
-    assert repo.get(
+    assert REPO.get(
         token='test',
         org='testorg',
         assignment_title='testassignment',
-        student='testuser') == None
+        student='testuser') is None
 
 
 @responses.activate
@@ -167,7 +167,7 @@ def test_student_permission_status_404_returns_none():
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser/collaborators/testuser/permission',
         status=404
     )
-    assert repo.student_permission() == None
+    assert REPO.student_permission() is None
 
 
 @responses.activate
@@ -179,7 +179,7 @@ def test_student_permission_returns_permission():
             'permission': 'write'
         }
     )
-    assert repo.student_permission() == 'write'
+    assert REPO.student_permission() == 'write'
 
 
 @responses.activate
@@ -192,7 +192,7 @@ def test_disable_student_push_request_contains_permission_pull():
             matchers.json_params_matcher({'permission': 'pull'})
         ]
     )
-    repo.disable_student_push()
+    REPO.disable_student_push()
     assert responses.assert_call_count(url, 1) is True
 
 
@@ -206,5 +206,5 @@ def test_enable_student_push_request_contains_permission_push():
             matchers.json_params_matcher({'permission': 'push'})
         ]
     )
-    repo.enable_student_push()
+    REPO.enable_student_push()
     assert responses.assert_call_count(url, 1) is True

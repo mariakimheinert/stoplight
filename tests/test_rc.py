@@ -1,5 +1,5 @@
-import toml
 from importlib import reload
+import toml
 
 from stoplight import rc
 

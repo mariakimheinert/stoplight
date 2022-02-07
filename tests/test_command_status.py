@@ -3,7 +3,6 @@ import toml
 import pytest
 
 from stoplight.run import app
-from stoplight.run import run_status
 
 
 runner = CliRunner()
