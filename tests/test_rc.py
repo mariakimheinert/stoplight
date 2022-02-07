@@ -8,7 +8,7 @@ def test_load_opens_stoplightrc(mocker):
     mock_open = mocker.mock_open(read_data=toml.dumps({}))
     mocker.patch('builtins.open', mock_open)
     rc.load()
-    mock_open.assert_called_once_with('.stoplightrc')
+    mock_open.assert_called_once_with('.stoplightrc', encoding='utf-8')
 
 
 def test_get_load_not_called_returns_none(mocker):
