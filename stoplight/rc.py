@@ -1,7 +1,7 @@
+import os
 import toml
 
 RC = None
-RC_FILENAME = '.stoplightrc'
 
 
 def load():
@@ -9,8 +9,12 @@ def load():
     Load configuration file as TOML.
     '''
     global RC
-    with open(RC_FILENAME, encoding='utf-8') as rc_file:
-        RC = toml.load(rc_file)
+    rc_filename = '.stoplightrc'
+    if not os.path.exists(rc_filename):
+        rc_filename = f'{os.path.expanduser("~")}/{rc_filename}'
+    if os.path.exists(rc_filename):
+        with open(rc_filename, encoding='utf-8') as rc_file:
+            RC = toml.load(rc_file)
 
 
 def get(key: str) -> str | None:
