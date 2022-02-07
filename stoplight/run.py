@@ -2,6 +2,7 @@ import json
 import typer
 from rich.console import Console
 from rich.table import Table
+from typing import Optional
 
 from stoplight import rc
 from stoplight.repo import AssignmentRepo
@@ -25,7 +26,7 @@ def red(token: str = TOKEN_OPTION,
         org: str = ORG_OPTION,
         assignment_title: str = ASSIGNMENT_TITLE_OPTION) -> None:
     """
-    Call function to disable push access to all assignment_title repositories.
+    Call function to disable push access to all assignment repositories.
     """
     token, org, assignment_title = fill_options(token, org, assignment_title)
     run_red(token, org, assignment_title)
@@ -33,21 +34,54 @@ def red(token: str = TOKEN_OPTION,
 
 def run_red(token: str, org: str, assignment_title: str):
     """
-    Disable push access to all assignment_title repositories.
+    Disable push access to all assignment repositories.
     """
-    pass
+    repos = AssignmentRepo.get_all(token, org, assignment_title)
+    with typer.progressbar(repos, label="Updating Permissions") as progress:
+        for repo in progress:
+            repo.disable_student_push()
+    run_status(repos=repos)
 
 
 @app.command()
 def green(token: str = TOKEN_OPTION,
           org: str = ORG_OPTION,
           assignment_title: str = ASSIGNMENT_TITLE_OPTION,
-          users: list[str] = typer.Argument(...,
-                                            help='GitHub users to enable access for')) -> None:
+          all: bool = typer.Option(
+              False, '--all', help='Enable push access to all assignment repositories.'),
+          students: Optional[list[str]] = typer.Argument(None,
+                                                         help='Usernames of students to enable access for')) -> None:
     """
-    Enable push access to assignment_title repositories.
+    Enable push access to assignment repositories.
     """
     token, org, assignment_title = fill_options(token, org, assignment_title)
+    if not all and not students:
+        typer.echo(
+            f'Must specify --all or at least one student', err=True)
+        raise typer.Exit(code=1)
+    run_green(token, org, assignment_title, all, students)
+
+
+def run_green(token: str, org: str, assignment_title: str, all: bool, students: list[str] = None):
+    """
+    Enable push access to assignment repositories.
+    """
+    if all:
+        repos = AssignmentRepo.get_all(token, org, assignment_title)
+    else:
+        repos = []
+        for student in students:
+            repo = AssignmentRepo.get(token, org, assignment_title, student)
+            if repo is None:
+                typer.echo(
+                    f'Skipping "{student}"... Assignment repository not found.')
+            else:
+                repos.append(repo)
+    if repos:
+        with typer.progressbar(repos, label="Updating Permissions") as progress:
+            for repo in progress:
+                repo.enable_student_push()
+        run_status(repos=repos)
 
 
 @app.command()
@@ -61,17 +95,23 @@ def status(token: str = TOKEN_OPTION,
     run_status(token, org, assignment_title)
 
 
-def run_status(token: str, org: str, assignment_title: str):
+def run_status(token: str = None, org: str = None, assignment_title: str = None, repos=None):
     """
     List user permission for each assignment_title repository.
     """
-    repos = AssignmentRepo.get_all(token, org, assignment_title)
-    table = Table(title=assignment_title)
+    if repos is None:
+        if token and org and assignment_title:
+            repos = AssignmentRepo.get_all(token, org, assignment_title)
+        else:
+            raise ValueError(
+                'Missing token, org, or assignment title in run_status()')
+    table = Table(title=repos[0].assignment_title)
     table.add_column('Repo')
     table.add_column('User')
     table.add_column('Permission')
-    for repo in repos:
-        table.add_row(repo.name, repo.student(), repo.student_permission())
+    with typer.progressbar(repos, label="Checking Status") as progress:
+        for repo in progress:
+            table.add_row(repo.name, repo.student(), repo.student_permission())
     Console().print(table)
 
 
@@ -108,32 +148,3 @@ def exit_if_missing(token: str, org: str, assignment_title: str):
         typer.echo(
             f'Must specify assignment_title key in .stoplightrc or with {ASSIGNMENT_TITLE_OPTION_NAME} option', err=True)
         raise typer.Exit(code=1)
-
-    # def get_repositories():
-    # def run():
-    #     config = parse_config()
-    #     token = config["token"]
-    #     api = "https://api.github.com"
-    #     accept = "application/vnd.github.v3+json"
-    #     headers = compose_headers(token, accept)
-
-    #     repos = requests.get(
-    #         f"{api}/search/repositories", headers=headers, params={"q": "test org:mkhcourses"}
-    #     )
-    #     print(repos.json()['items'])
-
-    #     blacklist = ['starter', 'solution']
-    #     # Remove any repos that contain any words in blacklist
-    #     sanitized_results = [result for result in repos.json()['items'] if not any(
-    #         word in result['full_name'] for word in blacklist)]
-
-    #     print(len(sanitized_results))
-    # repos = requests.get(
-    #     f'{api}/orgs/mkhcourses/repos', headers=headers)
-
-    # print(repos)
-    # print(len(repos.json()))
-
-    # collaborators = requests.get(
-    #     f'{api}/repos/{config["org"]}/test/collaborators', headers=headers)
-    # print(collaborators.json())
