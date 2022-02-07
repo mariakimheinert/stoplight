@@ -11,12 +11,11 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def patch_run(mocker):
     mocker.patch('stoplight.run.run_green')
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     yield
 
 
-def test_green_errs_if_missing_token(mocker):
-    mock_open = mocker.mock_open(read_data=toml.dumps({}))
-    mocker.patch('builtins.open', mock_open)
+def test_green_errs_if_missing_token():
     result = runner.invoke(
         app, ['green', '--org', 'test', '--assignment-title', 'test', 'test'])
     assert result.exit_code == 1

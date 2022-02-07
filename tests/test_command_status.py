@@ -11,6 +11,7 @@ runner = CliRunner()
 @pytest.fixture(autouse=True)
 def patch_run(mocker):
     mocker.patch('stoplight.run.run_status')
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     yield
 
 

@@ -7,7 +7,7 @@ from stoplight import rc
 
 @pytest.fixture(autouse=True)
 def setup(mocker):
-    mocker.patch('os.path.exists', return_value=True)
+    mocker.patch('stoplight.rc.rc_filename', return_value='.stoplightrc')
     yield
 
 
