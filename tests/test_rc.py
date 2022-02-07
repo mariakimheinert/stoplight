@@ -1,7 +1,6 @@
 from importlib import reload
-import toml
-import pytest
 import os
+import toml
 
 from stoplight import rc
 
@@ -26,7 +25,7 @@ def test_rc_filename_local_stoplightrc_not_exists_returns_home_stoplightrc(mocke
 
 def test_rc_filename_no_stoplightrc_returns_none(mocker):
     mocker.patch('os.path.exists', side_effect=[False, False])
-    assert rc.rc_filename() == None
+    assert rc.rc_filename() is None
 
 
 def test_get_load_not_called_returns_none(mocker):
