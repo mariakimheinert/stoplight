@@ -171,7 +171,7 @@ def test_get_all_status_422_returns_empty_list():
     repos = AssignmentRepo.get_all(
         token='test', org='testorg',
         assignment_title='testassignment')
-    assert repos == []
+    assert not repos
 
 
 @responses.activate
