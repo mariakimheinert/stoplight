@@ -115,6 +115,8 @@ def run_status(token: str = None, org: str = None, assignment_title: str = None,
                 table.add_row(repo.name, repo.student(),
                               repo.student_permission())
         Console().print(table)
+    else:
+        typer.echo(f'No repositories to display--is the configuration correct?')
 
 
 def fill_options(token: str, org: str, assignment_title: str) -> tuple[str, str, str]:
