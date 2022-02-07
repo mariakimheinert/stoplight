@@ -176,7 +176,7 @@ def test_student_permission_returns_permission():
         method=responses.GET,
         url=f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser/collaborators/testuser/permission',
         json={
-            'permission': 'push'
+            'permission': 'write'
         }
     )
-    assert repo.student_permission() == 'push'
+    assert repo.student_permission() == 'write'
