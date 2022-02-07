@@ -180,3 +180,31 @@ def test_student_permission_returns_permission():
         }
     )
     assert repo.student_permission() == 'write'
+
+
+@responses.activate
+def test_disable_student_push_request_contains_permission_pull():
+    url = f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser/collaborators/testuser'
+    responses.add(
+        method=responses.PUT,
+        url=url,
+        match=[
+            matchers.json_params_matcher({'permission': 'pull'})
+        ]
+    )
+    repo.disable_student_push()
+    assert responses.assert_call_count(url, 1) is True
+
+
+@responses.activate
+def test_enable_student_push_request_contains_permission_push():
+    url = f'{AssignmentRepo.API_URL}/repos/testorg/testassignment-testuser/collaborators/testuser'
+    responses.add(
+        method=responses.PUT,
+        url=url,
+        match=[
+            matchers.json_params_matcher({'permission': 'push'})
+        ]
+    )
+    repo.enable_student_push()
+    assert responses.assert_call_count(url, 1) is True
